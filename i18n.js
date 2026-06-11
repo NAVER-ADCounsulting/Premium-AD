@@ -18,7 +18,6 @@ const I18N = (() => {
       changeNote: "단가 및 상품 구성은 변동될 수 있습니다",
       clickNote: "상품명을 누르면 레퍼런스 이미지를 볼 수 있습니다",
       cols: ["상품명", "단가", "판매방식", "벤치마크 노출수", "벤치마크 CTR", "프로모션", "비고"],
-      count: n => `${n}개 상품`,
       footerHtml: "본 자료는 내부 안내용으로, 기재된 단가·벤치마크 효율은 집행 시점에 따라 달라질 수 있습니다. <strong>모든 단가는 VAT 별도 기준입니다.</strong><br>상세 조건 및 청약 문의는 담당자에게 연락 바랍니다.",
       refSuffix: " 레퍼런스",
       refBtn: "레퍼런스 이미지",
@@ -43,7 +42,6 @@ const I18N = (() => {
       changeNote: "Rates and product lineup are subject to change",
       clickNote: "Click a product name to view its reference image",
       cols: ["Product", "Rate", "Sales Unit", "Benchmark Impressions", "Benchmark CTR", "Promotion", "Notes"],
-      count: n => `${n} products`,
       footerHtml: "This material is for internal guidance only; listed rates and benchmark metrics may vary by campaign timing. <strong>All rates exclude VAT.</strong><br>For detailed terms and booking inquiries, please contact the account manager.",
       refSuffix: " — Reference",
       refBtn: "Reference Image",
@@ -68,7 +66,6 @@ const I18N = (() => {
       changeNote: "价格及产品构成可能变动",
       clickNote: "点击产品名称可查看参考图片",
       cols: ["产品名称", "价格", "销售方式", "基准曝光量", "基准CTR", "促销", "备注"],
-      count: n => `${n}个产品`,
       footerHtml: "本资料仅供内部参考，所列价格及基准效果可能因投放时间而异。<strong>所有价格均不含VAT。</strong><br>详细条件及订购咨询请联系负责人。",
       refSuffix: " 参考图",
       refBtn: "参考图片",
@@ -131,8 +128,8 @@ const I18N = (() => {
     "인스트림 15초 skip 참고": ["See In-stream 15s skip", "参考In-stream 15秒可跳过"],
 
     // 단가·노출수·비고 문구
-    "스페셜DA + 10,000,000원": ["Special DA + KRW 10,000,000", "Special DA + 10,000,000韩元"],
-    "*성별 구좌 집행 시 +5,000,000원": ["*+KRW 5,000,000 for gender-targeted slots", "*按性别投放时加收5,000,000韩元"],
+    "스페셜DA + 10,000,000원": ["Special DA + KRW 10,000,000", "Special DA + KRW 10,000,000"],
+    "*성별 구좌 집행 시 +5,000,000원": ["*+KRW 5,000,000 for gender-targeted slots", "*按性别投放时加收KRW 5,000,000"],
     "*이미지형 기준": ["*Based on image format", "*以图片形式为准"],
     "*홈우측 상품": ["*Home right-side placement", "*首页右侧广告位"],
     "*지면 평균": ["*Average across placements", "*版面平均值"],
@@ -145,23 +142,23 @@ const I18N = (() => {
     "최소 2달 전 논의 필요": ["Requires discussion at least 2 months in advance", "需至少提前2个月洽谈"],
     "기념일·시즈널리티 연계 필요": ["Must tie into anniversaries / seasonal moments", "需结合纪念日·季节性主题"],
     "소재 네이버 제작": ["Creative produced by NAVER", "素材由NAVER制作"],
-    "일반(4번째 탭) 50,000,000원": ["Standard (4th tab) KRW 50,000,000", "普通版(第4个标签页) 50,000,000韩元"],
-    "프리미엄(2번째 탭) 200,000,000원": ["Premium (2nd tab) KRW 200,000,000", "高级版(第2个标签页) 200,000,000韩元"],
+    "일반(4번째 탭) 50,000,000원": ["Standard (4th tab) KRW 50,000,000", "普通版(第4个标签页) KRW 50,000,000"],
+    "프리미엄(2번째 탭) 200,000,000원": ["Premium (2nd tab) KRW 200,000,000", "高级版(第2个标签页) KRW 200,000,000"],
     "일반 2,000,000": ["Standard 2,000,000", "普通版 2,000,000"],
     "프리미엄 7,500,000": ["Premium 7,500,000", "高级版 7,500,000"],
-    "프리미엄 100,000,000원": ["Premium KRW 100,000,000", "高级版 100,000,000韩元"],
+    "프리미엄 100,000,000원": ["Premium KRW 100,000,000", "高级版 KRW 100,000,000"],
     "0~8시 4시간 단위 판매": ["00–08h sold in 4-hour blocks", "0~8点按4小时单位销售"],
     "CPM 구매 가능": ["CPM available", "可按CPM购买"],
     "0시~14시, 14시~24시": ["00–14h, 14–24h", "0点~14点, 14点~24点"],
     "평일 30,000,000~35,000,000": ["Weekdays 30,000,000~35,000,000", "工作日 30,000,000~35,000,000"],
     "휴일 12,000,000~13,000,000": ["Holidays 12,000,000~13,000,000", "节假日 12,000,000~13,000,000"],
     "7/19까지 판매 후 상품 스펙 변경": ["Sold until Jul 19; specs change afterward", "销售至7月19日，之后产品规格变更"],
-    "최소 구매단가 1,000,000원": ["Minimum purchase KRW 1,000,000", "最低购买金额1,000,000韩元"],
+    "최소 구매단가 1,000,000원": ["Minimum purchase KRW 1,000,000", "最低购买金额KRW 1,000,000"],
     "월요일~일요일 단위로 구매": ["Purchased in Monday–Sunday units", "以周一至周日为单位购买"],
     "스마트채널 지면만 클릭 가능": ["Click-through only on Smart Channel placement", "仅Smart Channel版位可点击"],
-    "일반형 30,000,000원": ["Standard KRW 30,000,000", "普通型 30,000,000韩元"],
-    "특수형 35,000,000원": ["Special KRW 35,000,000", "特殊型 35,000,000韩元"],
-    "플로팅형 42,000,000원": ["Floating KRW 42,000,000", "悬浮型 42,000,000韩元"],
+    "일반형 30,000,000원": ["Standard KRW 30,000,000", "普通型 KRW 30,000,000"],
+    "특수형 35,000,000원": ["Special KRW 35,000,000", "特殊型 KRW 35,000,000"],
+    "플로팅형 42,000,000원": ["Floating KRW 42,000,000", "悬浮型 KRW 42,000,000"],
 
     // 시간대별 단가 페이지
     "평일": ["Weekdays", "工作日"],
@@ -175,7 +172,7 @@ const I18N = (() => {
     "10·11·18·19시는 성별 타겟팅 구좌 전용 시간대 (남녀 각 1구좌)": ["10/11/18/19h are gender-targeting-only slots (1 slot each for men/women)", "10·11·18·19点为性别定向专用时段（男女各1个广告位）"],
     "0~8시는 4시간 단위 판매": ["00–08h sold in 4-hour blocks", "0~8点按4小时单位销售"],
     "CPT 일 3구좌 판매 (동일 광고주 3구좌, 연속 집행 가능)": ["3 CPT slots sold per day (same advertiser may run all 3 consecutively)", "CPT每日销售3个广告位（同一广告主可连续投放3个）"],
-    "CPM 구매 가능: CPM 3,200원": ["CPM available: KRW 3,200", "可按CPM购买: 3,200韩元"],
+    "CPM 구매 가능: CPM 3,200원": ["CPM available: KRW 3,200", "可按CPM购买: CPM KRW 3,200"],
     "반일 단위 판매 (00~14시 / 14~24시 각 1구좌)": ["Sold in half-day units (1 slot each for 00–14h / 14–24h)", "按半天销售（0~14点/14~24点各1个广告位）"],
 
     // Npay / 크림 카드
@@ -192,12 +189,12 @@ const I18N = (() => {
   // 정규식 기반 번역 (사전에 없는 패턴형 문구)
   function trPattern(line, lang) {
     let m;
-    // "9,000,000원" / "9,000,000~13,000,000원"
+    // "9,000,000원" / "9,000,000~13,000,000원" (중국어도 KRW 표기)
     if ((m = line.match(/^([\d,]+(?:~[\d,]+)?)원$/)))
-      return lang === "en" ? `KRW ${m[1]}` : `${m[1]}韩元`;
+      return `KRW ${m[1]}`;
     // "CPM 13,000원"
     if ((m = line.match(/^CPM ([\d,]+)원$/)))
-      return lang === "en" ? `CPM KRW ${m[1]}` : `CPM ${m[1]}韩元`;
+      return `CPM KRW ${m[1]}`;
     // "00~04시"
     if ((m = line.match(/^(\d{2})~(\d{2})시$/)))
       return lang === "en" ? `${m[1]}:00–${m[2]}:00` : `${m[1]}~${m[2]}点`;

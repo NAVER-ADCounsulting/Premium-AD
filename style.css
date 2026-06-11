@@ -248,15 +248,6 @@ body {
   background: linear-gradient(180deg, var(--naver-green), var(--naver-green-dark));
 }
 
-.count-badge {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--naver-green-deep);
-  background: var(--green-tint);
-  padding: 3px 9px;
-  border-radius: 999px;
-}
-
 /* ----- 표 ----- */
 .table-card {
   background: var(--card);
