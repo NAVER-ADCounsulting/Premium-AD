@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>시간대별 단가 안내</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <a class="back-link" href="index.html" id="back-link"></a>
+
+    <header class="page-header">
+      <!-- 언어 선택 -->
+      <div class="lang-switch">
+        <button class="lang-btn" id="lang-btn" aria-haspopup="true">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.4"/><ellipse cx="8" cy="8" rx="2.9" ry="6.4" stroke="currentColor" stroke-width="1.4"/><path d="M2 8h12M2.8 5h10.4M2.8 11h10.4" stroke="currentColor" stroke-width="1.4"/></svg>
+          <span id="lang-label"></span>
+        </button>
+        <div class="lang-menu" id="lang-menu" role="menu"></div>
+      </div>
+
+      <span class="badge" id="pd-badge"></span>
+      <h1 id="product-title"></h1>
+      <p class="meta" id="product-meta"></p>
+    </header>
+
+    <main id="detail"></main>
+
+    <footer class="page-footer" id="pd-footer"></footer>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="i18n.js"></script>
+  <script>
+    let LANG = I18N.getLang();
+    const ui = () => I18N.UI[LANG];
+    const tr = v => I18N.tr(v, LANG);
+
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[c]));
+    }
+
+    const id = new URLSearchParams(location.search).get("product");
+    let product = null;
+    for (const cat of AD_DATA.categories) {
+      const hit = (cat.products || []).find(p => p.id === id);
+      if (hit) { product = hit; break; }
+    }
+
+    function renderAll() {
+      const u = ui();
+      document.getElementById("back-link").textContent = u.back;
+      document.getElementById("pd-badge").textContent = u.pdBadge;
+      document.getElementById("pd-footer").innerHTML = u.pdFooterHtml;
+
+      const detail = document.getElementById("detail");
+
+      if (!product) {
+        document.getElementById("product-title").textContent = u.pdBadge;
+        document.getElementById("product-meta").textContent = "";
+        detail.innerHTML = `<div class="detail-card">${esc(u.notFound)} <a href="index.html">${esc(u.back)}</a></div>`;
+        return;
+      }
+
+      const pname = tr(product.name);
+      document.getElementById("product-title").textContent = u.pdTitle(pname);
+      document.title = u.pdTitle(pname);
+
+      // 메타 정보: 판매방식 · CTR
+      const metaBits = [`${u.updated} ${AD_DATA.updatedAt}`];
+      if (product.saleType) metaBits.push(`${u.saleLabel}: ${tr(product.saleType)}`);
+      const ctrFirstLine = (product.ctr || "").split("\n")[0];
+      if (ctrFirstLine && ctrFirstLine !== "-") metaBits.push(`${u.ctrLabel}: ${tr(ctrFirstLine)}`);
+      document.getElementById("product-meta").textContent = metaBits.join(" · ");
+
+      const slots = product.timePricing || [];
+      let rowsHtml = "";
+      let lastGroup = null;
+      for (const t of slots) {
+        if (t.group !== lastGroup) {
+          rowsHtml += `<tr class="group-row"><td colspan="5">${esc(tr(t.group))}</td></tr>`;
+          lastGroup = t.group;
+        }
+        rowsHtml += `
+          <tr>
+            <td class="slot">${esc(tr(t.slot))}</td>
+            <td>${esc(tr(t.unit))}</td>
+            <td class="price">${esc(tr(t.price))}</td>
+            <td>${esc(t.imps)}</td>
+            <td class="${t.note ? "wrap-ok" : "empty"}">${t.note ? esc(tr(t.note)) : "-"}</td>
+          </tr>`;
+      }
+
+      if (!slots.length) {
+        rowsHtml = `<tr><td colspan="5" class="empty" style="text-align:center;padding:40px;">${esc(u.emptySlots)}</td></tr>`;
+      }
+
+      const notesHtml = (product.priceNotes || []).length
+        ? `<ul class="price-notes">${product.priceNotes.map(n => `<li>${esc(tr(n))}</li>`).join("")}</ul>`
+        : "";
+
+      detail.innerHTML = `
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="time-table">
+              <thead>
+                <tr>${u.ths.map(h => `<th>${esc(h)}</th>`).join("")}</tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          </div>
+        </div>
+        ${notesHtml}`;
+
+      // 언어 선택 UI
+      document.getElementById("lang-label").textContent = I18N.LANG_LABELS[LANG];
+      document.getElementById("lang-menu").innerHTML =
+        Object.entries(I18N.LANG_LABELS).map(([code, label]) =>
+          `<button data-lang="${code}" class="${code === LANG ? "active" : ""}">${label}</button>`).join("");
+    }
+
+    renderAll();
+    I18N.setLang(LANG);
+
+    // ----- 언어 선택 -----
+    const langMenu = document.getElementById("lang-menu");
+    document.getElementById("lang-btn").addEventListener("click", e => {
+      e.stopPropagation();
+      langMenu.classList.toggle("open");
+    });
+    langMenu.addEventListener("click", e => {
+      const btn = e.target.closest("button[data-lang]");
+      if (!btn) return;
+      LANG = btn.dataset.lang;
+      I18N.setLang(LANG);
+      langMenu.classList.remove("open");
+      renderAll();
+    });
+    document.addEventListener("click", e => {
+      if (!e.target.closest(".lang-switch")) langMenu.classList.remove("open");
+    });
+  </script>
+</body>
+</html>
