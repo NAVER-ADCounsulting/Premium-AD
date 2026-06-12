@@ -356,6 +356,7 @@ table:not(.time-table) tbody td:first-child {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  text-align: left;
 }
 .product-name:hover { color: var(--naver-green-deep); }
 .product-name:hover .name-text {
