@@ -261,14 +261,14 @@ body {
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
 
 thead th {
-  background: #fafbfc;
-  color: var(--ink-faint);
+  background: var(--naver-green);
+  color: #fff;
   font-weight: 800;
   font-size: 12px;
   letter-spacing: 0.02em;
   text-align: left;
   padding: 13px 18px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--naver-green-dark);
   white-space: nowrap;
 }
 
@@ -337,11 +337,17 @@ td.promo .sub-note { color: #e8794a; }
   font-weight: 800;
 }
 
+/* 상품명 셀: 아주 연한 초록 배경 */
+table:not(.time-table) tbody td:first-child {
+  background: #f3fcf7;
+}
+
 /* 상품명 버튼 (팝업 트리거) */
 .product-name {
   background: none;
   border: none;
   font: inherit;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--ink);
