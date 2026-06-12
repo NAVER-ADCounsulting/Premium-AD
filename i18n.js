@@ -98,7 +98,7 @@ const I18N = (() => {
     "더블크라운": ["Double Crown", "Double Crown(双皇冠)"],
     "트리플크라운": ["Triple Crown", "Triple Crown(三皇冠)"],
     "쇼케이스": ["Showcase", "Showcase"],
-    "피드 1st (스포츠/엔터 탭)": ["Feed 1st (Sports/Entertainment tab)", "Feed 1st (体育/娱乐版块)"],
+    "피드 1st (스포츠/엔터 탭)": ["Feed 1st\n(Sports/Entertainment tab)", "Feed 1st\n(体育/娱乐版块)"],
     "타임보드": ["Timeboard", "Timeboard"],
     "롤링보드": ["Rollingboard", "Rollingboard"],
     "헤드라인DA": ["Headline DA", "Headline DA"],
@@ -128,7 +128,7 @@ const I18N = (() => {
     "인스트림 15초 skip 참고": ["See In-stream 15s skip", "参考In-stream 15秒可跳过"],
 
     // 단가·노출수·비고 문구
-    "스페셜DA + 10,000,000원": ["Special DA + KRW 10,000,000", "Special DA + KRW 10,000,000"],
+    "스페셜DA + 10,000,000원": ["Special DA\n+ KRW 10,000,000", "Special DA\n+ KRW 10,000,000"],
     "*성별 구좌 집행 시 +5,000,000원": ["*+KRW 5,000,000 for gender-targeted slots", "*按性别投放时加收KRW 5,000,000"],
     "*이미지형 기준": ["*Based on image format", "*以图片形式为准"],
     "*홈우측 상품": ["*Home right-side placement", "*首页右侧广告位"],
@@ -142,11 +142,11 @@ const I18N = (() => {
     "최소 2달 전 논의 필요": ["Requires discussion at least 2 months in advance", "需至少提前2个月洽谈"],
     "기념일·시즈널리티 연계 필요": ["Must tie into anniversaries / seasonal moments", "需结合纪念日·季节性主题"],
     "소재 네이버 제작": ["Creative produced by NAVER", "素材由NAVER制作"],
-    "일반(4번째 탭) 50,000,000원": ["Standard (4th tab) KRW 50,000,000", "普通版(第4个标签页) KRW 50,000,000"],
-    "프리미엄(2번째 탭) 200,000,000원": ["Premium (2nd tab) KRW 200,000,000", "高级版(第2个标签页) KRW 200,000,000"],
+    "일반(4번째 탭) 50,000,000원": ["Standard (4th tab)\nKRW 50,000,000", "普通版(第4个标签页)\nKRW 50,000,000"],
+    "프리미엄(2번째 탭) 200,000,000원": ["Premium (2nd tab)\nKRW 200,000,000", "高级版(第2个标签页)\nKRW 200,000,000"],
     "일반 2,000,000": ["Standard 2,000,000", "普通版 2,000,000"],
     "프리미엄 7,500,000": ["Premium 7,500,000", "高级版 7,500,000"],
-    "프리미엄 100,000,000원": ["Premium KRW 100,000,000", "高级版 KRW 100,000,000"],
+    "프리미엄 100,000,000원": ["Premium\nKRW 100,000,000", "高级版\nKRW 100,000,000"],
     "0~8시 4시간 단위 판매": ["00–08h sold in 4-hour blocks", "0~8点按4小时单位销售"],
     "CPM 구매 가능": ["CPM available", "可按CPM购买"],
     "0시~14시, 14시~24시": ["00–14h, 14–24h", "0点~14点, 14点~24点"],
@@ -213,7 +213,9 @@ const I18N = (() => {
       if (DICT[t]) return DICT[t][idx];
       const p = trPattern(t, lang);
       return p !== null ? p : line;
-    }).join("\n");
+    }).join("\n")
+      // "KRW 9,000,000"이 중간에서 줄바꿈되지 않도록 (NBSP)
+      .replace(/KRW (\d)/g, "KRW $1");
   }
 
   const LANG_LABELS = { ko: "한국어", en: "English", zh: "中文" };

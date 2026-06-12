@@ -65,7 +65,7 @@
         return;
       }
 
-      const pname = tr(product.name);
+      const pname = tr(product.name).replace(/\n/g, " ");
       document.getElementById("product-title").textContent = u.pdTitle(pname);
       document.title = u.pdTitle(pname);
 

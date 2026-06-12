@@ -115,7 +115,7 @@
           <td>
             <button class="product-name" data-id="${esc(p.id)}">
               <span class="img-icon">${IMG_ICON_SVG}</span>
-              <span class="name-text">${esc(tr(p.name))}</span>
+              <span class="name-text">${esc(tr(p.name)).replace(/\n/g, "<br>")}</span>
             </button>
           </td>
           ${priceCell(p)}
@@ -202,7 +202,7 @@
     }
 
     function openModal(p) {
-      modalTitle.textContent = tr(p.name) + ui().refSuffix;
+      modalTitle.textContent = tr(p.name).replace(/\n/g, " ") + ui().refSuffix;
       const img = new Image();
       img.alt = tr(p.name);
       img.onload = () => {
