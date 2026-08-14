@@ -19,6 +19,8 @@
         <div class="lang-menu" id="lang-menu" role="menu"></div>
       </div>
 
+      <nav class="tab-nav" id="tab-nav"></nav>
+
       <span class="badge" id="hero-badge"></span>
       <h1 id="hero-title"></h1>
       <p class="meta" id="hero-meta"></p>
@@ -148,6 +150,9 @@
     function renderAll() {
       const u = ui();
       document.title = u.docTitle;
+      document.getElementById("tab-nav").innerHTML =
+        `<a class="active" href="index.html">${esc(u.mix.tabGuide)}</a>` +
+        `<a href="mix.html">${esc(u.mix.tabMix)}</a>`;
       document.getElementById("hero-badge").textContent = u.badge;
       document.getElementById("hero-title").innerHTML = u.titleHtml;
       document.getElementById("hero-meta").innerHTML = [
@@ -203,6 +208,13 @@
 
     function openModal(p) {
       modalTitle.textContent = tr(p.name).replace(/\n/g, " ") + ui().refSuffix;
+      // 아직 레퍼런스 이미지가 없는 상품은 바로 안내 문구를 보여줍니다
+      if (!p.image) {
+        modalBody.innerHTML = `<div class="img-placeholder">${esc(ui().imgPreparing)}</div>`;
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+        return;
+      }
       const img = new Image();
       img.alt = tr(p.name);
       img.onload = () => {

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보장형 광고 믹스 구성</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 히어로 -->
+  <header class="hero">
+    <div class="hero-inner">
+      <!-- 언어 선택 -->
+      <div class="lang-switch">
+        <button class="lang-btn" id="lang-btn" aria-haspopup="true" aria-expanded="false">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.4"/><ellipse cx="8" cy="8" rx="2.9" ry="6.4" stroke="currentColor" stroke-width="1.4"/><path d="M2 8h12M2.8 5h10.4M2.8 11h10.4" stroke="currentColor" stroke-width="1.4"/></svg>
+          <span id="lang-label"></span>
+        </button>
+        <div class="lang-menu" id="lang-menu" role="menu"></div>
+      </div>
+
+      <nav class="tab-nav" id="tab-nav"></nav>
+
+      <span class="badge" id="mix-badge"></span>
+      <h1 id="mix-title"></h1>
+      <p class="meta" id="mix-lead"></p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- 예산 역산 추천 -->
+    <details class="auto-box" id="auto-box">
+      <summary id="auto-title"></summary>
+      <div class="auto-body" id="auto-body"></div>
+    </details>
+
+    <!-- 1. 상품 선택 -->
+    <section class="mix-sec">
+      <div class="sec-head">
+        <h2 id="pick-title"></h2>
+        <label class="promo-toggle">
+          <input type="checkbox" id="promo-toggle" />
+          <span id="promo-label"></span>
+        </label>
+      </div>
+      <div class="table-card">
+        <div class="table-scroll">
+          <table class="pk-table">
+            <thead id="pk-head"></thead>
+            <tbody id="pk-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 믹스 (상품 선택 하단) -->
+    <section class="mix-sec" id="mix-section">
+      <div class="sec-head">
+        <h2 id="sum-title"></h2>
+        <span class="sec-count" id="sum-count"></span>
+      </div>
+
+      <dl class="mp-stats" id="sum-stats"></dl>
+      <p class="mp-warn" id="sum-warn" hidden></p>
+      <div class="promo-hint" id="promo-hint" hidden></div>
+
+      <div class="table-card">
+        <div class="table-scroll">
+          <table class="mix-table">
+            <thead id="mix-head"></thead>
+            <tbody id="mix-body"></tbody>
+            <tfoot id="mix-foot"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <p class="mix-note" id="mix-note"></p>
+
+      <div class="mp-actions">
+        <button class="lc-btn lc-ref" id="add-row"></button>
+        <span class="mp-spacer"></span>
+        <button class="lc-btn" id="csv-btn"></button>
+        <button class="lc-btn lc-ref" id="clear-btn"></button>
+      </div>
+    </section>
+
+    <footer class="page-footer" id="page-footer"></footer>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="i18n.js"></script>
+  <script src="mix.js"></script>
+</body>
+</html>

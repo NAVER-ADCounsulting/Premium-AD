@@ -4,12 +4,48 @@
 // - image: images/ 폴더에 파일을 넣고 경로를 적으면 팝업에 표시됩니다.
 // - timePricing: 시간대별 단가 (보장형광고_단가표 발췌).
 //   항목: group(평일/휴일/공통), slot(시간대), unit(판매 단위),
-//         price(공시 단가), imps(예상 노출량/구좌), note(비고)
+//         price(공시 단가), imps(예상 노출량/구좌), note(비고), maxQty(일 최대 구좌)
+//
+// - mix: 믹스 구성 화면(mix.html)의 계산용 정보입니다.
+//   시간대별 단가는 timePricing에서 자동 파싱하므로 mix에 다시 적지 않습니다.
+//   ★ 정액·CPM 단가를 위 price 문구에서 바꿨다면 mix의 숫자도 함께 바꿔주세요.
+//
+//   kind: "timeslot" — timePricing에서 시간대를 골라 담는 상품
+//         "flat"     — 정액. tiers[]의 옵션을 골라 수량(unit) × 개수로 계산
+//         "cpm"      — CPM 구매. 집행 예산을 넣으면 노출량을 역산
+//         "addon"    — 단독 판매가 아니라 다른 상품에 붙는 상품 (더블크라운)
+//   unit: 정액 상품의 판매 단위 — "hour" | "2h" | "day" | "week"
+//   tiers[]: { id, label(옵션명, 없으면 단일), price, promo(프로모션가), imps([최소,최대]) }
+//   imps: null 이면 노출량 미제공 → 합계에서 제외되고 화면에 별도 표기됩니다.
+//   ctr: [최소, 최대] 비율 (0.002 = 0.2%). null 이면 클릭 예상치 미산정.
+//   maxQty: 시간대 1개당 담을 수 있는 최대 구좌 수 (기본 1)
+//   surcharges[]: CPM 할증 옵션 — { id, label, rate(0.2 = 20%), per, max }
+//     per: true  = 개수만큼 반복 적용 (타겟팅 요소 추가 시마다)
+//          false = 켜고 끄는 1회성 (소재 유형 변경)
+//     할증은 요율을 그냥 더합니다. 10% + 20% = 30% → 기본 CPM × 1.3
+//     (곱셈 누적이 아닙니다. 20% 2개 + 10% 1개 = 50% → × 1.5)
 // ============================================================
+
+// 소재 유형별 할증 (rate: 0.2 = 20%). promo: true 면 프로모션 적용 중인 요율임을 표시합니다.
+const CT_SPECIAL_DA = [
+  { id: "image", label: "이미지형", rate: 0 },
+  { id: "expand", label: "이미지/동영상 확장형", rate: 0.2 },
+  { id: "expand-new", label: "이미지/동영상 확장형 (신)", rate: 0, promo: true },
+  { id: "video-plus", label: "동영상 확장형_플러스", rate: 0.3 }
+];
+const CT_TIMEBOARD = [
+  { id: "image", label: "이미지형", rate: 0 },
+  { id: "video", label: "동영상형", rate: 0.1 }
+];
+
+// 스페셜DA 성별 타겟팅 전용 시간대 (남녀 각 1구좌)
+const GENDER_SLOTS = ["10~11시", "11~12시", "18~19시", "19~20시"];
 
 // 시간대별 단가 행 생성 헬퍼
 function tp(group, rows) {
-  return rows.map(r => ({ group, slot: r[0], unit: r[1], price: r[2], imps: r[3], note: r[4] || "" }));
+  return rows.map(r => ({
+    group, slot: r[0], unit: r[1], price: r[2], imps: r[3], note: r[4] || "", maxQty: r[5] || 0
+  }));
 }
 
 // ---- 스페셜DA (MO) · 평일/휴일 공통 ----
@@ -21,16 +57,16 @@ const TP_SPECIAL_DA = tp("평일·휴일 공통", [
   ["07~08시", "1시간", "21,000,000원", "4,500,000~9,300,000"],
   ["08~09시", "1시간", "24,000,000원", "6,800,000~10,400,000"],
   ["09~10시", "1시간", "26,000,000원", "7,600,000~11,000,000"],
-  ["10~11시", "1시간", "18,000,000원", "3,900,000~5,900,000", "성별 타겟팅 전용 (남녀 각 1구좌)"],
-  ["11~12시", "1시간", "19,000,000원", "4,100,000~5,200,000", "성별 타겟팅 전용 (남녀 각 1구좌)"],
+  ["10~11시", "1시간", "18,000,000원", "3,900,000~5,900,000", "성별 타겟팅 전용 (남녀 각 1구좌)", 2],
+  ["11~12시", "1시간", "19,000,000원", "4,100,000~5,200,000", "성별 타겟팅 전용 (남녀 각 1구좌)", 2],
   ["12~13시", "1시간", "29,000,000원", "9,000,000~11,700,000"],
   ["13~14시", "1시간", "28,000,000원", "8,900,000~11,200,000"],
   ["14~15시", "1시간", "28,000,000원", "9,200,000~11,600,000"],
   ["15~16시", "1시간", "29,000,000원", "9,300,000~12,100,000"],
   ["16~17시", "1시간", "29,000,000원", "9,600,000~12,500,000"],
   ["17~18시", "1시간", "30,000,000원", "9,600,000~11,700,000"],
-  ["18~19시", "1시간", "19,000,000원", "4,100,000~5,100,000", "성별 타겟팅 전용 (남녀 각 1구좌)"],
-  ["19~20시", "1시간", "19,000,000원", "4,200,000~5,100,000", "성별 타겟팅 전용 (남녀 각 1구좌)"],
+  ["18~19시", "1시간", "19,000,000원", "4,100,000~5,100,000", "성별 타겟팅 전용 (남녀 각 1구좌)", 2],
+  ["19~20시", "1시간", "19,000,000원", "4,200,000~5,100,000", "성별 타겟팅 전용 (남녀 각 1구좌)", 2],
   ["20~21시", "1시간", "29,000,000원", "9,200,000~12,200,000"],
   ["21~22시", "1시간", "30,000,000원", "9,200,000~12,700,000"],
   ["22~23시", "1시간", "26,000,000원", "8,600,000~12,100,000"],
@@ -121,8 +157,8 @@ const TP_ROLLINGBOARD = [
 
 // ---- 헤드라인DA (PC) ----
 const TP_HEADLINE = [
-  ...tp("평일", [["00~14시 / 14~24시", "반일", "20,000,000원", "30,000,000~35,000,000", "각 1구좌"]]),
-  ...tp("휴일", [["00~14시 / 14~24시", "반일", "8,000,000원", "12,000,000~13,000,000", "각 1구좌"]])
+  ...tp("평일", [["00~14시 / 14~24시", "반일", "20,000,000원", "30,000,000~35,000,000", "각 1구좌", 2]]),
+  ...tp("휴일", [["00~14시 / 14~24시", "반일", "8,000,000원", "12,000,000~13,000,000", "각 1구좌", 2]])
 ];
 
 const AD_DATA = {
@@ -148,7 +184,14 @@ const AD_DATA = {
             "0~6시는 2시간 단위 판매",
             "10·11·18·19시는 성별 타겟팅 구좌 전용 시간대 (남녀 각 1구좌)",
             "동영상형 집행 시 할증"
-          ]
+          ],
+          mix: {
+            kind: "timeslot",
+            ctr: [0.002, 0.015],
+            genderSlots: GENDER_SLOTS,
+            creativeTypes: CT_SPECIAL_DA,
+            notes: ["10·11·18·19시 구좌는 성별 단위 집행 구좌"]
+          }
         },
         {
           id: "double-crown",
@@ -160,7 +203,15 @@ const AD_DATA = {
           promotion: "",
           note: "",
           image: "images/더블크라운.png",
-          timePricing: null
+          timePricing: null,
+          mix: {
+            kind: "addon",
+            attachTo: "special-da",
+            add: 10000000,
+            addGender: 5000000,   // 성별 구좌 여부는 붙는 상품(스페셜DA)의 genderSlots 를 따릅니다
+            imps: [900000, 1100000],
+            ctr: [0.002, 0.008]
+          }
         },
         {
           id: "triple-crown",
@@ -172,7 +223,14 @@ const AD_DATA = {
           promotion: "",
           note: "최소 2달 전 논의 필요\n기념일·시즈널리티 연계 필요\n소재 네이버 제작",
           image: "images/트리플크라운.png",
-          timePricing: null
+          timePricing: null,
+          mix: {
+            kind: "flat",
+            unit: "2h",
+            tiers: [{ id: "std", price: 130000000, imps: null }],
+            ctr: null,
+            notes: ["최소 2달 전 논의 필요"]
+          }
         },
         {
           id: "showcase",
@@ -184,7 +242,16 @@ const AD_DATA = {
           promotion: "프리미엄 100,000,000원",
           note: "",
           image: "images/쇼케이스.png",
-          timePricing: null
+          timePricing: null,
+          mix: {
+            kind: "flat",
+            unit: "day",
+            tiers: [
+              { id: "std", label: "일반", price: 50000000, imps: [2000000, 2000000] },
+              { id: "prm", label: "프리미엄", price: 200000000, promo: 100000000, imps: [7500000, 7500000] }
+            ],
+            ctr: [0.001, 0.01]
+          }
         },
         {
           id: "feed-1st",
@@ -196,7 +263,59 @@ const AD_DATA = {
           promotion: "",
           note: "",
           image: "images/피드1st.png",
-          timePricing: null
+          timePricing: null,
+          mix: {
+            kind: "flat",
+            unit: "hour",
+            tiers: [
+              { id: "sports", label: "스포츠 탭", price: 10000000, imps: [110000, 170000] },
+              { id: "enter", label: "엔터 탭", price: 10000000, imps: [140000, 220000] }
+            ],
+            ctr: [0.003, 0.011]
+          }
+        },
+        {
+          id: "mo-branding-da",
+          name: "MO 브랜딩DA",
+          price: "CPM 6,000원",
+          saleType: "CPM 구매",
+          impressions: "-",
+          ctr: "0.45%\n*평균",
+          promotion: "",
+          note: "성별 외 타겟팅 요소 추가 시마다 20% CPM 할증",
+          image: "images/MO_brandingda.png",
+          timePricing: null,
+          mix: {
+            kind: "cpm",
+            cpm: 6000,
+            ctr: [0.0045, 0.0045],
+            surcharges: [
+              { id: "target", label: "성별 외 타겟팅 추가", rate: 0.2, per: true, max: 5 }
+            ],
+            notes: ["성별 외 타겟팅 요소 추가 시마다 20% CPM 할증"]
+          }
+        },
+        {
+          id: "mo-smart-channel",
+          name: "MO 스마트채널",
+          price: "CPM 3,000원",
+          saleType: "CPM 구매",
+          impressions: "-",
+          ctr: "0.1%\n*평균",
+          promotion: "",
+          note: "소재 유형 변경 시 10% CPM 할증\n성별 외 타겟팅 요소 추가 시마다 20% CPM 할증",
+          image: "images/MO_smartchannel.png",
+          timePricing: null,
+          mix: {
+            kind: "cpm",
+            cpm: 3000,
+            ctr: [0.001, 0.001],
+            surcharges: [
+              { id: "creative", label: "소재 유형 변경", rate: 0.1, per: false },
+              { id: "target", label: "성별 외 타겟팅 추가", rate: 0.2, per: true, max: 5 }
+            ],
+            notes: ["소재 유형 변경 시 10% CPM 할증", "성별 외 타겟팅 요소 추가 시마다 20% CPM 할증"]
+          }
         }
       ]
     },
@@ -219,7 +338,12 @@ const AD_DATA = {
           priceNotes: [
             "0~8시는 4시간 단위 판매",
             "동영상형 집행 시 할증"
-          ]
+          ],
+          mix: {
+            kind: "timeslot",
+            ctr: [0.0005, 0.002],
+            creativeTypes: CT_TIMEBOARD
+          }
         },
         {
           id: "rollingboard",
@@ -235,7 +359,13 @@ const AD_DATA = {
           priceNotes: [
             "CPT 일 3구좌 판매 (동일 광고주 3구좌, 연속 집행 가능)",
             "CPM 구매 가능: CPM 3,200원"
-          ]
+          ],
+          mix: {
+            kind: "timeslot",
+            maxQty: 3,
+            ctr: [0.001, 0.002],
+            notes: ["CPT 일 3구좌 판매 (동일 광고주 3구좌, 연속 집행 가능)"]
+          }
         },
         {
           id: "headline-da",
@@ -250,7 +380,12 @@ const AD_DATA = {
           timePricing: TP_HEADLINE,
           priceNotes: [
             "반일 단위 판매 (00~14시 / 14~24시 각 1구좌)"
-          ]
+          ],
+          mix: {
+            kind: "timeslot",
+            ctr: [0.0004, 0.0005],
+            notes: ["반일 단위 판매 (00~14시 / 14~24시 각 1구좌)"]
+          }
         },
         {
           id: "pc-home-front",
@@ -262,7 +397,13 @@ const AD_DATA = {
           promotion: "70,000,000원",
           note: "",
           image: "images/PC전면광고.png",
-          timePricing: null
+          timePricing: null,
+          mix: {
+            kind: "flat",
+            unit: "hour",
+            tiers: [{ id: "std", price: 80000000, promo: 70000000, imps: null }],
+            ctr: [0.0005, 0.002]
+          }
         },
         {
           id: "pc-baseball-front",
@@ -274,7 +415,14 @@ const AD_DATA = {
           promotion: "",
           note: "7/19까지 판매 후 상품 스펙 변경",
           image: "images/PC스포츠홈.png",
-          timePricing: null
+          timePricing: null,
+          mix: {
+            kind: "flat",
+            unit: "day",
+            tiers: [{ id: "std", price: 20000000, imps: [500000, 700000] }],
+            ctr: [0.01, 0.015],
+            notes: ["7/19까지 판매 후 상품 스펙 변경"]
+          }
         }
       ]
     },
@@ -293,7 +441,13 @@ const AD_DATA = {
           promotion: "",
           note: "",
           image: "images/퍼스트뷰.png",
-          timePricing: null
+          timePricing: null,
+          mix: {
+            kind: "flat",
+            unit: "day",
+            tiers: [{ id: "std", price: 15000000, imps: [1200000, 1200000] }],
+            ctr: [0.001, 0.005]
+          }
         },
         {
           id: "chzzk-instream-15s",
@@ -305,7 +459,8 @@ const AD_DATA = {
           promotion: "CPM 9,100원",
           note: "",
           image: "images/인스트림.png",
-          timePricing: null
+          timePricing: null,
+          mix: { kind: "cpm", cpm: 13000, promo: 9100, ctr: [0.001, 0.005] }
         },
         {
           id: "chzzk-instream-5s",
@@ -317,7 +472,9 @@ const AD_DATA = {
           promotion: "CPM 6,300원",
           note: "",
           image: "images/인스트림.png",
-          timePricing: null
+          timePricing: null,
+          // 프로모션가가 정상가와 동일해 mix에서는 promo를 두지 않음 (실질 할인 없음)
+          mix: { kind: "cpm", cpm: 6300, ctr: [0.0005, 0.002] }
         },
         {
           id: "chzzk-chatcatch",
@@ -329,7 +486,14 @@ const AD_DATA = {
           promotion: "",
           note: "최소 구매단가 1,000,000원",
           image: "images/챗캐치배너.png",
-          timePricing: null
+          timePricing: null,
+          mix: {
+            kind: "cpm",
+            cpm: 3000,
+            minSpend: 1000000,
+            ctr: [0.0015, 0.002],
+            notes: ["최소 구매단가 1,000,000원"]
+          }
         },
         {
           id: "chzzk-banner-package",
@@ -341,7 +505,15 @@ const AD_DATA = {
           promotion: "CPM 2,000원",
           note: "월요일~일요일 단위로 구매",
           image: "images/배너패키지.png",
-          timePricing: null
+          timePricing: null,
+          // 프로모션(CPM 2,000원)은 구매 모델이 달라 정액 tier의 할인가로 두지 않음
+          mix: {
+            kind: "flat",
+            unit: "week",
+            tiers: [{ id: "std", price: 10000000, imps: [6000000, 6000000] }],
+            ctr: [0.001, 0.001],
+            notes: ["월요일~일요일 단위로 구매"]
+          }
         }
       ]
     },
@@ -360,7 +532,18 @@ const AD_DATA = {
           promotion: "",
           note: "월요일~일요일 단위로 구매\n스마트채널 지면만 클릭 가능",
           image: "images/지도앱 스플래시.png",
-          timePricing: null
+          timePricing: null,
+          mix: {
+            kind: "flat",
+            unit: "week",
+            tiers: [
+              { id: "std", label: "일반형", price: 30000000, imps: [20000000, 20000000] },
+              { id: "spc", label: "특수형", price: 35000000, imps: [20000000, 20000000] },
+              { id: "flt", label: "플로팅형", price: 42000000, imps: [20000000, 20000000] }
+            ],
+            ctr: null,
+            notes: ["월요일~일요일 단위로 구매", "스마트채널 지면만 클릭 가능"]
+          }
         }
       ]
     },
